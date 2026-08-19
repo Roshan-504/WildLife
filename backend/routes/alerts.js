@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Alert = require("../models/Alert");
-const admin = require("../config/firebase");
+const { messaging } = require("../config/firebase");
 
 // POST /api/alerts  ← This is what your Python code calls
 router.post("/", async (req, res) => {
@@ -25,6 +25,8 @@ router.post("/", async (req, res) => {
       });
     }
 
+    const alertDate = timestamp ? new Date(timestamp) : new Date();
+
     const alert = await Alert.create({
       camera_id,
       zone,
@@ -32,7 +34,7 @@ router.post("/", async (req, res) => {
       species,
       confidence,
       severity: severity || "WARNING",
-      timestamp: timestamp ? new Date(timestamp) : new Date(),
+      timestamp: alertDate,
       image_base64, // temporary – we will remove this later
     });
 
@@ -59,9 +61,8 @@ router.post("/", async (req, res) => {
     };
 
     // Fire and forget - don't await so the response is faster
-    admin
-      .messaging()
-      .send(message)
+
+    messaging.send(message)
       .then((response) =>
         console.log("Successfully sent FCM message:", response),
       )
