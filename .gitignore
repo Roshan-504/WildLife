@@ -5,7 +5,7 @@ node_modules/
 npm-debug.log
 .env
 .env.*.local
-
+firebase-service-account.json
 # =========================
 # Python / Machine Learning
 # =========================

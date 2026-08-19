@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Alert = require("../models/Alert");
+const admin = require("../config/firebase");
 
 // POST /api/alerts  ← This is what your Python code calls
 router.post("/", async (req, res) => {
@@ -35,13 +36,40 @@ router.post("/", async (req, res) => {
       image_base64, // temporary – we will remove this later
     });
 
-    console.log(
-      `[NEW ALERT] ${species} | ${severity} | Camera: ${camera_id} | Zone: ${zone}`,
-    );
+    const formattedTime = alertDate.toLocaleTimeString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // --- FIREBASE PUSH NOTIFICATION LOGIC ---
+    const message = {
+      notification: {
+        title: `🚨 ${severity} Alert: ${species.toUpperCase()} Detected!`,
+        // Added the formatted time into the body string
+        body: `A ${species} was spotted near ${location.area_name} at ${formattedTime}.`,
+      },
+      data: {
+        alert_id: alert._id.toString(),
+        species: species,
+        zone: zone,
+        time: formattedTime, // Also pass it in the background payload
+      },
+      topic: zone,
+    };
+
+    // Fire and forget - don't await so the response is faster
+    admin
+      .messaging()
+      .send(message)
+      .then((response) =>
+        console.log("Successfully sent FCM message:", response),
+      )
+      .catch((error) => console.log("Error sending FCM message:", error));
+
 
     // TODO later:
     // 1. Upload image_base64 to Cloudinary → get image_url
-    // 2. Send push notification to residents of this zone
 
     res.status(201).json({
       success: true,
