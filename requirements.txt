@@ -1,0 +1,11 @@
+pytorch-lightning
+lightning
+omegaconf
+pyyaml
+PytorchWildlife
+tensorflow>=2.16.1
+tf-keras
+opencv-python
+pillow
+numpy
+requests

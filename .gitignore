@@ -1,0 +1,32 @@
+# =========================
+# Node.js / Backend
+# =========================
+node_modules/
+npm-debug.log
+.env
+.env.*.local
+
+# =========================
+# Python / Machine Learning
+# =========================
+# Environments
+venv/
+env/
+.venv/
+.env/
+
+# Cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# =========================
+# OS & Editor Files
+# =========================
+.DS_Store
+.vscode/
+.idea/
