@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
+import 'package:flutter/foundation.dart';
 
 class ApiService {
   
@@ -54,7 +55,7 @@ class ApiService {
       }
       return null;
     } catch (e) {
-      debugPrint('Error fetching single alert: $e');
+      print('Error fetching single alert: $e');
       return null;
     }
   }
