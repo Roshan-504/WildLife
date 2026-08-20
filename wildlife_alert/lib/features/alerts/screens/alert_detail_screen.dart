@@ -1,15 +1,29 @@
 import 'package:flutter/material.dart';
-import 'dart:convert'; // Required for base64Decode
+import 'dart:convert';
 
 class AlertDetailScreen extends StatelessWidget {
   final Map<String, dynamic> alert;
-
   const AlertDetailScreen({super.key, required this.alert});
+
 
   @override
   Widget build(BuildContext context) {
     final isCritical = alert['severity'] == 'CRITICAL';
-    final base64String = alert['image_base64'];
+    final rawBase64 = alert['image_base64'];
+    // --- SANITIZE THE BASE64 STRING ---
+    // --- SANITIZE THE BASE64 STRING ---
+    String? cleanBase64;
+    if (rawBase64 != null && rawBase64.isNotEmpty) {
+      String tempString = rawBase64.contains(',') ? rawBase64.split(',').last : rawBase64;
+      cleanBase64 = tempString.replaceAll(RegExp(r'\s+'), '');
+      
+      // ADD THIS DEBUG PRINT
+      debugPrint('SUCCESS: Image received! Length: ${cleanBase64.length} characters');
+      debugPrint('PREVIEW: ${cleanBase64.substring(0, 30)}...'); 
+    } else {
+      // ADD THIS DEBUG PRINT
+      debugPrint('WARNING: rawBase64 is null or empty for this alert.');
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -20,20 +34,22 @@ class AlertDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Base64 Image Renderer
-            if (base64String != null && base64String.isNotEmpty)
+            // Use the sanitized string here
+            if (cleanBase64 != null && cleanBase64.isNotEmpty)
               Image.memory(
-                base64Decode(base64String),
+                base64Decode(cleanBase64),
                 height: 250,
                 fit: BoxFit.cover,
-                // Fallback if the base64 string is corrupted
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 250,
-                  color: Colors.grey.shade300,
-                  child: const Center(
-                    child: Icon(Icons.broken_image, size: 80, color: Colors.grey),
-                  ),
-                ),
+                errorBuilder: (context, error, stackTrace) {
+                  debugPrint('Image decode error: $error'); // Helpful for debugging
+                  return Container(
+                    height: 250,
+                    color: Colors.grey.shade300,
+                    child: const Center(
+                      child: Icon(Icons.broken_image, size: 80, color: Colors.grey),
+                    ),
+                  );
+                },
               )
             else
               Container(

@@ -19,7 +19,7 @@ const alertSchema = new mongoose.Schema(
     timestamp: { type: Date, required: true },
     image_url: { type: String, default: null }, // will be filled later by Cloudinary
     // We store base64 temporarily only if needed (not recommended for production)
-    image_base64: { type: String, select: false },
+    image_base64: { type: String},
   },
   { timestamps: true },
 );

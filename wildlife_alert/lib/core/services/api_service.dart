@@ -11,6 +11,7 @@ class ApiService {
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print(data);
         return data['data']; // Returns the list of zone objects
       } else {
         throw Exception('Failed to load zones');
@@ -59,6 +60,7 @@ class ApiService {
       
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print(data['data']);
         return data['data']; 
       }
       return [];

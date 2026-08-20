@@ -62,12 +62,12 @@ router.post("/", async (req, res) => {
 
     // Fire and forget - don't await so the response is faster
 
-    messaging.send(message)
+    messaging
+      .send(message)
       .then((response) =>
         console.log("Successfully sent FCM message:", response),
       )
       .catch((error) => console.log("Error sending FCM message:", error));
-
 
     // TODO later:
     // 1. Upload image_base64 to Cloudinary → get image_url
@@ -93,10 +93,10 @@ router.post("/", async (req, res) => {
 });
 
 // Replace your existing GET / route with this:
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { zone, page = 1, limit = 10, severity } = req.query;
-    
+
     // Build the filter query
     const query = {};
     if (zone) query.zone = zone;
@@ -105,7 +105,7 @@ router.get('/', async (req, res) => {
     const alerts = await Alert.find(query)
       .sort({ timestamp: -1 }) // Newest first
       .skip((page - 1) * limit)
-      .limit(parseInt(limit))
+      .limit(parseInt(limit));
 
     res.json({ success: true, count: alerts.length, data: alerts });
   } catch (error) {
