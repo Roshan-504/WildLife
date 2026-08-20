@@ -106,7 +106,6 @@ router.get('/', async (req, res) => {
       .sort({ timestamp: -1 }) // Newest first
       .skip((page - 1) * limit)
       .limit(parseInt(limit))
-      .select('-image_base64'); // Keep payloads small
 
     res.json({ success: true, count: alerts.length, data: alerts });
   } catch (error) {

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:flutter/foundation.dart';
 import '../../../core/services/api_service.dart';
 import '../../alerts/screens/alert_feed_screen.dart'; // We will build this next
+import '../../../core/screens/main_nav_screen.dart'; // Add this import
 
 class ZoneSelectionScreen extends StatefulWidget {
   const ZoneSelectionScreen({super.key});
@@ -52,8 +53,11 @@ class _ZoneSelectionScreenState extends State<ZoneSelectionScreen> {
       if (!success) throw Exception("Failed to update profile on backend");
 
       // 2. Subscribe the device to the chosen Firebase FCM topic
-      await FirebaseMessaging.instance.subscribeToTopic(_selectedTopicId!);
-
+      if (!kIsWeb) {
+        await FirebaseMessaging.instance.subscribeToTopic(_selectedTopicId!);
+      } else {
+        debugPrint("Running on Web: Skipped FCM subscription. Saving locally instead.");
+      }
       // 3. Save locally so Splash Screen knows to skip this page next time
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('current_zone', _selectedTopicId!);
@@ -63,7 +67,7 @@ class _ZoneSelectionScreenState extends State<ZoneSelectionScreen> {
       // 4. Navigate to the main Alert Feed
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const AlertFeedScreen()),
+        MaterialPageRoute(builder: (context) => const MainNavScreen()), // CHANGED
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

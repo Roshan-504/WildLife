@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/alert_detail_screen.dart'; 
 
 class AlertCard extends StatelessWidget {
   final Map<String, dynamic> alert;
@@ -41,7 +42,12 @@ class AlertCard extends StatelessWidget {
         ),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
-          // TODO: Navigate to AlertDetailScreen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AlertDetailScreen(alert: alert),
+            ),
+          );
         },
       ),
     );

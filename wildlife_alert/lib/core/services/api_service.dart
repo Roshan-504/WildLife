@@ -45,11 +45,15 @@ class ApiService {
     }
   }
 
-  // --- Fetch Paginated Alerts ---
-  static Future<List<dynamic>> fetchAlerts(String zone, {int page = 1, String? severity}) async {
+  // --- Fetch Paginated & Filtered Alerts ---
+  static Future<List<dynamic>> fetchAlerts({String? zone, int page = 1, String? severity}) async {
     try {
-      String url = '${ApiConstants.getAlerts}?zone=$zone&page=$page';
-      if (severity != null) url += '&severity=$severity';
+      // Start with the base URL and page
+      String url = '${ApiConstants.getAlerts}?page=$page';
+      
+      // Append filters only if they are provided
+      if (zone != null && zone.isNotEmpty) url += '&zone=$zone';
+      if (severity != null && severity.isNotEmpty) url += '&severity=$severity';
       
       final response = await http.get(Uri.parse(url));
       

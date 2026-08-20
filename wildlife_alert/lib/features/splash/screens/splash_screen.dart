@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../auth/screens/login_screen.dart';
 import '../../onboarding/screens/zone_selection_screen.dart';
 import '../../alerts/screens/alert_feed_screen.dart'; // We'll build this next
+import '../../../core/screens/main_nav_screen.dart'; // Add this import
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -41,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (hasZone) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const AlertFeedScreen()),
+          MaterialPageRoute(builder: (context) => const MainNavScreen()),
         );
       } else {
         Navigator.pushReplacement(
