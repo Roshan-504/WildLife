@@ -180,7 +180,7 @@ class _AlertFeedScreenState extends State<AlertFeedScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Live Alerts'),
+        title: const Text('Alert History'),
         actions: [
           IconButton(
             icon: Stack(
@@ -210,6 +210,7 @@ class _AlertFeedScreenState extends State<AlertFeedScreen> {
                   onRefresh: _fetchInitialData,
                   child: ListView.builder(
                     controller: _scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: _alerts.length + 1, // +1 for the loading indicator at the bottom
                     itemBuilder: (context, index) {
                       if (index < _alerts.length) {

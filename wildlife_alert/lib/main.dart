@@ -2,39 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/foundation.dart';
 import 'firebase_options.dart';
-import 'package:flutter/foundation.dart'; // Gives us access to kIsWeb
 
-// Import your splash screen based on the new folder structure
 import 'features/splash/screens/splash_screen.dart';
+import 'features/alerts/screens/alert_detail_screen.dart';
+import 'core/services/api_service.dart';
 
-// 1. Initialize local notifications for foreground alerts
+// 1. Create a Global Navigation Key
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-// 2. Background message handler (Must be a top-level function)
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print("Background message received: ${message.messageId}");
 }
 
 void main() async {
-  // Ensure Flutter bindings are initialized before Firebase
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Firebase using the CLI-generated options
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  // Register the background handler
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // 3. Configure Android notification channel for maximum priority (heads-up banner + sound)
   const AndroidNotificationChannel channel = AndroidNotificationChannel(
-    'critical_alerts', // id
-    'Critical Wildlife Alerts', // name
-    description: 'Bypasses silent mode for critical apex predators.', 
+    'critical_alerts',
+    'Critical Wildlife Alerts',
     importance: Importance.max,
   );
 
@@ -43,20 +35,13 @@ void main() async {
         .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
-  // Request user permissions for notifications (Crucial for iOS and Android 13+)
-  await FirebaseMessaging.instance.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
 
-  // Run the app
+  await FirebaseMessaging.instance.requestPermission();
   runApp(const WildlifeApp());
 }
 
 class WildlifeApp extends StatefulWidget {
   const WildlifeApp({super.key});
-
   @override
   State<WildlifeApp> createState() => _WildlifeAppState();
 }
@@ -65,18 +50,46 @@ class _WildlifeAppState extends State<WildlifeApp> {
   @override
   void initState() {
     super.initState();
+    _setupNotificationListeners();
+  }
 
-    // 4. Listen for foreground messages and trigger a local notification
+  // 2. Unified Navigation Handler
+  Future<void> _handleNotificationTap(String? alertId) async {
+    if (alertId == null) return;
+    
+    // Fetch full data using the API Service
+    final alertData = await ApiService.fetchAlertById(alertId);
+    
+    if (alertData != null && navigatorKey.currentState != null) {
+      navigatorKey.currentState!.push(
+        MaterialPageRoute(
+          builder: (context) => AlertDetailScreen(alert: alertData),
+        ),
+      );
+    }
+  }
+
+  void _setupNotificationListeners() {
+    // A. Handle tap when app is in Foreground via Local Notifications
+    if (!kIsWeb) {
+      flutterLocalNotificationsPlugin.initialize(
+        const InitializationSettings(
+          android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+        ),
+        onDidReceiveNotificationResponse: (NotificationResponse response) {
+          if (response.payload != null) {
+            _handleNotificationTap(response.payload);
+          }
+        },
+      );
+    }
+
+    // B. Handle Firebase Foreground Messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
 
       if (!kIsWeb && notification != null && android != null) {
-        
-        print("FCM Message Received in Foreground: ${notification.title}");
-        
-        // UNCOMMENT THIS WHEN RUNNING ON ANDROID/SCRCPY
-        /*
         flutterLocalNotificationsPlugin.show(
           notification.hashCode,
           notification.title,
@@ -87,20 +100,25 @@ class _WildlifeAppState extends State<WildlifeApp> {
               'Critical Wildlife Alerts',
               importance: Importance.max,
               priority: Priority.high,
-              icon: '@mipmap/ic_launcher',
             ),
           ),
+          payload: message.data['alert_id'], // Pass the ID to the payload
         );
-        */
       }
+    });
+
+    // C. Handle tap when app is in Background (but not terminated)
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      _handleNotificationTap(message.data['alert_id']);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey, // 3. Attach the key here
       title: 'Wildlife Alerts',
-      debugShowCheckedModeBanner: false, // Cleaner look for production
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         appBarTheme: AppBarTheme(
@@ -109,7 +127,6 @@ class _WildlifeAppState extends State<WildlifeApp> {
           elevation: 0,
         ),
       ),
-      // App starts at the Splash Screen to handle auth & routing logic
       home: const SplashScreen(), 
     );
   }

@@ -46,6 +46,19 @@ class ApiService {
     }
   }
 
+  static Future<Map<String, dynamic>?> fetchAlertById(String id) async {
+    try {
+      final response = await http.get(Uri.parse('${ApiConstants.getAlerts}/$id'));
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['data'];
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error fetching single alert: $e');
+      return null;
+    }
+  }
+
   // --- Fetch Paginated & Filtered Alerts ---
   static Future<List<dynamic>> fetchAlerts({String? zone, int page = 1, String? severity}) async {
     try {

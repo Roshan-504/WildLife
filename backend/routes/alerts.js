@@ -113,4 +113,16 @@ router.get("/", async (req, res) => {
   }
 });
 
+
+// GET /api/alerts/:id - Fetch single alert for notifications
+router.get("/:id", async (req, res) => {
+  try {
+    const alert = await Alert.findById(req.params.id);
+    if (!alert) return res.status(404).json({ success: false, message: "Not found" });
+    res.json({ success: true, data: alert });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 module.exports = router;

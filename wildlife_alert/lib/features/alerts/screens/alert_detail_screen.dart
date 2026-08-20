@@ -11,18 +11,12 @@ class AlertDetailScreen extends StatelessWidget {
     final isCritical = alert['severity'] == 'CRITICAL';
     final rawBase64 = alert['image_base64'];
     // --- SANITIZE THE BASE64 STRING ---
-    // --- SANITIZE THE BASE64 STRING ---
     String? cleanBase64;
     if (rawBase64 != null && rawBase64.isNotEmpty) {
+      // 1. Use a temporary non-nullable string
       String tempString = rawBase64.contains(',') ? rawBase64.split(',').last : rawBase64;
+      // 2. Safely strip any hidden newlines or whitespaces
       cleanBase64 = tempString.replaceAll(RegExp(r'\s+'), '');
-      
-      // ADD THIS DEBUG PRINT
-      debugPrint('SUCCESS: Image received! Length: ${cleanBase64.length} characters');
-      debugPrint('PREVIEW: ${cleanBase64.substring(0, 30)}...'); 
-    } else {
-      // ADD THIS DEBUG PRINT
-      debugPrint('WARNING: rawBase64 is null or empty for this alert.');
     }
 
     return Scaffold(
