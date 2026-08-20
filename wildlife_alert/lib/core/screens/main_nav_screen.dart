@@ -23,30 +23,89 @@ class _MainNavScreenState extends State<MainNavScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex], // Display the selected screen
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedItemColor: Colors.red.shade700,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.warning_rounded),
-            label: 'Alerts',
+      backgroundColor: const Color(0xFF0A0E11), // Seamless blend with the screens
+      
+      // IndexedStack keeps screens alive in memory so they don't reload when switching tabs
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: const Color(0xFF0A0E11),
+          border: Border(
+            top: BorderSide(
+              color: Colors.tealAccent.withOpacity(0.1), // Subtle teal divider line
+              width: 1,
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.health_and_safety),
-            label: 'Help',
+        ),
+        child: Theme(
+          // Removes the default ripple splash effect for a cleaner feel
+          data: ThemeData(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+          child: BottomNavigationBar(
+            backgroundColor: const Color(0xFF0A0E11),
+            currentIndex: _currentIndex,
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            },
+            selectedItemColor: Colors.tealAccent,
+            unselectedItemColor: Colors.white.withOpacity(0.4),
+            selectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.bold, 
+              fontSize: 11, 
+              letterSpacing: 1.2,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontWeight: FontWeight.w600, 
+              fontSize: 11, 
+              letterSpacing: 1.0,
+            ),
+            items: [
+              BottomNavigationBarItem(
+                icon: const Padding(
+                  padding: EdgeInsets.only(bottom: 6.0, top: 4.0),
+                  child: Icon(Icons.radar_outlined, size: 26),
+                ),
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 6.0, top: 4.0),
+                  child: Icon(Icons.radar_rounded, color: Colors.tealAccent, size: 26),
+                ),
+                label: 'ALERTS',
+              ),
+              BottomNavigationBarItem(
+                icon: const Padding(
+                  padding: EdgeInsets.only(bottom: 6.0, top: 4.0),
+                  child: Icon(Icons.shield_outlined, size: 26),
+                ),
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 6.0, top: 4.0),
+                  child: Icon(Icons.shield_rounded, color: Colors.tealAccent, size: 26),
+                ),
+                label: 'SAFETY',
+              ),
+              BottomNavigationBarItem(
+                icon: const Padding(
+                  padding: EdgeInsets.only(bottom: 6.0, top: 4.0),
+                  child: Icon(Icons.person_outline_rounded, size: 26),
+                ),
+                activeIcon: Padding(
+                  padding: const EdgeInsets.only(bottom: 6.0, top: 4.0),
+                  child: Icon(Icons.person_rounded, color: Colors.tealAccent, size: 26),
+                ),
+                label: 'PROFILE',
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

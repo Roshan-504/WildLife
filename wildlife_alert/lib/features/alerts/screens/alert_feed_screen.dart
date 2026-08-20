@@ -105,24 +105,61 @@ class _AlertFeedScreenState extends State<AlertFeedScreen> {
 
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent, // Transparent for custom styling
+      isScrollControlled: true,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Padding(
-              padding: const EdgeInsets.all(20.0),
+            return Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF00150F), // Very dark teal/black background
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                border: Border(
+                  top: BorderSide(color: Colors.tealAccent, width: 0.5),
+                ),
+              ),
+              padding: EdgeInsets.only(
+                left: 24.0,
+                right: 24.0,
+                top: 12.0,
+                bottom: MediaQuery.of(context).padding.bottom + 24.0,
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Filter Alerts', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 20),
+                  // Top Drag Handle
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  
+                  const Text(
+                    'Filter Alerts', 
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 1.2),
+                  ),
+                  const SizedBox(height: 24),
                   
                   // Zone Dropdown
                   DropdownButtonFormField<String?>(
-                    decoration: const InputDecoration(labelText: 'Select Zone', border: OutlineInputBorder()),
+                    dropdownColor: const Color(0xFF00251A), // Deep forest container
+                    icon: const Icon(Icons.arrow_drop_down_rounded, color: Colors.tealAccent),
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.05),
+                      labelText: 'Select Zone',
+                      labelStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Colors.tealAccent, width: 1.5)),
+                    ),
                     value: tempZone,
                     items: [
                       const DropdownMenuItem(value: null, child: Text('All Zones')),
@@ -133,11 +170,21 @@ class _AlertFeedScreenState extends State<AlertFeedScreen> {
                     ],
                     onChanged: (val) => setModalState(() => tempZone = val),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 16),
 
                   // Severity Dropdown
                   DropdownButtonFormField<String?>(
-                    decoration: const InputDecoration(labelText: 'Severity', border: OutlineInputBorder()),
+                    dropdownColor: const Color(0xFF00251A),
+                    icon: const Icon(Icons.arrow_drop_down_rounded, color: Colors.tealAccent),
+                    style: const TextStyle(color: Colors.white, fontSize: 16),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.05),
+                      labelText: 'Severity Level',
+                      labelStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: const BorderSide(color: Colors.tealAccent, width: 1.5)),
+                    ),
                     value: tempSeverity,
                     items: const [
                       DropdownMenuItem(value: null, child: Text('All Severities')),
@@ -146,7 +193,7 @@ class _AlertFeedScreenState extends State<AlertFeedScreen> {
                     ],
                     onChanged: (val) => setModalState(() => tempSeverity = val),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 32),
 
                   // Action Buttons
                   Row(
@@ -154,15 +201,28 @@ class _AlertFeedScreenState extends State<AlertFeedScreen> {
                       Expanded(
                         child: OutlinedButton(
                           onPressed: () => _applyFilters(null, null), // Clear all
-                          child: const Text('Clear Filters'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: BorderSide(color: Colors.white.withOpacity(0.3)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                          child: const Text('Clear', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                         ),
                       ),
-                      const SizedBox(width: 15),
+                      const SizedBox(width: 16),
                       Expanded(
+                        flex: 2,
                         child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade700, foregroundColor: Colors.white),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: const Color(0xFF00796B), 
+                            foregroundColor: Colors.white,
+                            elevation: 8,
+                            shadowColor: Colors.tealAccent.withOpacity(0.3),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
                           onPressed: () => _applyFilters(tempZone, tempSeverity),
-                          child: const Text('Apply'),
+                          child: const Text('APPLY FILTERS', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
                         ),
                       ),
                     ],
@@ -179,57 +239,119 @@ class _AlertFeedScreenState extends State<AlertFeedScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Alert History'),
+        title: const Text(
+          'ALERT HISTORY', 
+          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.5, fontSize: 18)
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Stack(
+              clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.filter_list),
+                const Icon(Icons.filter_list_rounded, color: Colors.white, size: 28),
                 if (_selectedZone != null || _selectedSeverity != null)
                   Positioned(
-                    right: 0,
-                    top: 0,
+                    right: -2,
+                    top: -2,
                     child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: const BoxDecoration(color: Colors.orange, shape: BoxShape.circle),
-                      constraints: const BoxConstraints(minWidth: 8, minHeight: 8),
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.tealAccent, // Vibrant dot for active filter
+                        shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFF00251A), width: 1.5),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.tealAccent.withOpacity(0.5),
+                            blurRadius: 4,
+                          )
+                        ]
+                      ),
+                      constraints: const BoxConstraints(minWidth: 12, minHeight: 12),
                     ),
                   )
               ],
             ),
             onPressed: _openFilterSheet,
           ),
+          const SizedBox(width: 8),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _alerts.isEmpty
-              ? const Center(child: Text('No alerts match your filters.'))
-              : RefreshIndicator(
-                  onRefresh: _fetchInitialData,
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: _alerts.length + 1, // +1 for the loading indicator at the bottom
-                    itemBuilder: (context, index) {
-                      if (index < _alerts.length) {
-                        return AlertCard(alert: _alerts[index]);
-                      } else {
-                        // Bottom loading indicator for pagination
-                        return _hasMoreData
-                            ? const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20),
-                                child: Center(child: CircularProgressIndicator()),
-                              )
-                            : const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 20),
-                                child: Center(child: Text('No more alerts.')),
-                              );
-                      }
-                    },
-                  ),
-                ),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF004D40), // Deep Teal
+              Color(0xFF00251A), // Dark Forest Green
+              Color(0xFF0A0E11), // Premium Slate/Black
+            ],
+            stops: [0.0, 0.5, 1.0],
+          ),
+        ),
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: Colors.tealAccent, strokeWidth: 3),
+                )
+              : _alerts.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle_outline, size: 64, color: Colors.tealAccent.withOpacity(0.5)),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No alerts match your filters.',
+                            style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    )
+                  : RefreshIndicator(
+                      color: Colors.tealAccent,
+                      backgroundColor: const Color(0xFF0A0E11),
+                      onRefresh: _fetchInitialData,
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.only(top: 8, bottom: 20, left: 16, right: 16),
+                        itemCount: _alerts.length + 1, // +1 for the loading indicator at the bottom
+                        itemBuilder: (context, index) {
+                          if (index < _alerts.length) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: AlertCard(alert: _alerts[index]),
+                            );
+                          } else {
+                            // Bottom loading indicator for pagination
+                            return _hasMoreData
+                                ? const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 24),
+                                    child: Center(child: CircularProgressIndicator(color: Colors.tealAccent)),
+                                  )
+                                : Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 24),
+                                    child: Center(
+                                      child: Text(
+                                        'End of History.',
+                                        style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 14),
+                                      )
+                                    ),
+                                  );
+                          }
+                        },
+                      ),
+                    ),
+        ),
+      ),
     );
   }
 }
