@@ -92,13 +92,21 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Optional: GET recent alerts (useful for testing / admin)
-router.get("/", async (req, res) => {
+// Replace your existing GET / route with this:
+router.get('/', async (req, res) => {
   try {
-    const alerts = await Alert.find()
-      .sort({ createdAt: -1 })
-      .limit(50)
-      .select("-image_base64"); // never send base64 back
+    const { zone, page = 1, limit = 10, severity } = req.query;
+    
+    // Build the filter query
+    const query = {};
+    if (zone) query.zone = zone;
+    if (severity) query.severity = severity;
+
+    const alerts = await Alert.find(query)
+      .sort({ timestamp: -1 }) // Newest first
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit))
+      .select('-image_base64'); // Keep payloads small
 
     res.json({ success: true, count: alerts.length, data: alerts });
   } catch (error) {
